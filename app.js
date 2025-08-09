@@ -1,65 +1,76 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const userIcon = document.getElementById('user-icon');
-    const userEmailDisplay = document.getElementById('user-email');
-    const projectList = document.getElementById('project-list');
-    const adminPanel = document.getElementById('admin-panel');
-    const noProjectMsg = document.getElementById('no-project-msg');
+import { auth, db } from "./firebase-config.js";
+import { 
+    onAuthStateChanged, signOut 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    collection, getDocs 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Auth
-    userIcon.addEventListener('click', () => {
-        if (!auth.currentUser) {
-            const choice = confirm("Vous n'êtes pas connecté. Voulez-vous vous inscrire ?");
-            const email = prompt("Email :");
-            const password = prompt("Mot de passe :");
-            if (choice) {
-                auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message));
-            } else {
-                auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-            }
-        }
+const accountBtn = document.getElementById("account-btn");
+const accountMenu = document.getElementById("account-menu");
+const accountInfo = document.getElementById("account-info");
+const accountActions = document.getElementById("account-actions");
+const projectsContainer = document.getElementById("projects-container");
+const noProjects = document.getElementById("no-projects");
+
+// Toggle menu
+accountBtn.addEventListener("click", () => {
+    accountMenu.classList.toggle("hidden");
+});
+
+// Fermer menu si clic extérieur
+document.addEventListener("click", (e) => {
+    if (!accountBtn.contains(e.target) && !accountMenu.contains(e.target)) {
+        accountMenu.classList.add("hidden");
+    }
+});
+
+// Chargement projets
+async function loadProjects() {
+    const querySnapshot = await getDocs(collection(db, "projects"));
+    projectsContainer.innerHTML = "";
+    if (querySnapshot.empty) {
+        noProjects.classList.remove("hidden");
+        return;
+    }
+    querySnapshot.forEach(doc => {
+        const project = doc.data();
+        const div = document.createElement("div");
+        div.classList.add("project-card");
+        div.innerHTML = `<h3>${project.name}</h3><a href="${project.url}" target="_blank">Ouvrir</a>`;
+        projectsContainer.appendChild(div);
     });
+}
 
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            userEmailDisplay.textContent = user.email;
-            if (user.email === "besancon.noe@gmail.com") adminPanel.style.display = "block";
-        } else {
-            userEmailDisplay.textContent = "";
-            adminPanel.style.display = "none";
-        }
-    });
-
-    function loadProjects() {
-        db.collection("projects").onSnapshot(snapshot => {
-            projectList.innerHTML = "";
-            if (snapshot.empty) {
-                noProjectMsg.style.display = "block";
-            } else {
-                noProjectMsg.style.display = "none";
-                snapshot.forEach(doc => {
-                    const proj = doc.data();
-                    const card = document.createElement("div");
-                    card.className = "project-card";
-                    card.innerHTML = `<h3>${proj.name}</h3><p>${proj.url}</p>`;
-                    card.onclick = () => window.open(proj.url, "_blank");
-                    projectList.appendChild(card);
-                });
-            }
+// Auth state
+onAuthStateChanged(auth, user => {
+    accountActions.innerHTML = "";
+    if (user) {
+        accountInfo.innerHTML = `<strong>${user.email}</strong>`;
+        accountActions.innerHTML = `<button id="logout-btn">Déconnexion</button>`;
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth);
+        });
+    } else {
+        accountInfo.innerHTML = `<em>Non connecté</em>`;
+        accountActions.innerHTML = `
+            <button id="login-btn">Connexion</button>
+            <button id="signup-btn">Créer un compte</button>
+        `;
+        document.getElementById("login-btn").addEventListener("click", () => {
+            alert("Formulaire de connexion ici");
+        });
+        document.getElementById("signup-btn").addEventListener("click", () => {
+            alert("Formulaire d'inscription ici");
         });
     }
     loadProjects();
+});
 
-    document.getElementById("add-project-btn").addEventListener("click", () => {
-        const name = document.getElementById("project-name").value;
-        const url = document.getElementById("project-url").value;
-        if (name && url) {
-            db.collection("projects").add({ name, url });
-        }
-    });
-
-    // Licence modal
-    const modal = document.getElementById("license-modal");
-    document.getElementById("license-link").onclick = () => modal.style.display = "block";
-    document.querySelector(".close-btn").onclick = () => modal.style.display = "none";
-    window.onclick = e => { if (e.target == modal) modal.style.display = "none"; };
+// Licence
+document.getElementById("licence-link").addEventListener("click", () => {
+    document.getElementById("licence-popup").classList.remove("hidden");
+});
+document.getElementById("close-licence").addEventListener("click", () => {
+    document.getElementById("licence-popup").classList.add("hidden");
 });
