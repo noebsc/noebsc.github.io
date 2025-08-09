@@ -1,32 +1,29 @@
-const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const userInfo = document.getElementById('user-info');
+const userIcon = document.getElementById('user-icon');
+const userEmailDisplay = document.getElementById('user-email');
 const projectList = document.getElementById('project-list');
 const adminPanel = document.getElementById('admin-panel');
+const noProjectMsg = document.getElementById('no-project-msg');
 
-loginBtn.addEventListener('click', () => {
-    const email = prompt("Email :");
-    const password = prompt("Mot de passe :");
-    auth.signInWithEmailAndPassword(email, password)
-        .catch(err => alert(err.message));
+// Auth
+userIcon.addEventListener('click', () => {
+    if (!auth.currentUser) {
+        const choice = confirm("Vous n'êtes pas connecté. Voulez-vous vous inscrire ?");
+        const email = prompt("Email :");
+        const password = prompt("Mot de passe :");
+        if (choice) {
+            auth.createUserWithEmailAndPassword(email, password).catch(err => alert(err.message));
+        } else {
+            auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
+        }
+    }
 });
-
-logoutBtn.addEventListener('click', () => auth.signOut());
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        userInfo.textContent = `Connecté : ${user.email}`;
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "block";
-
-        if (user.email === "besancon.noe@gmail.com") {
-            userInfo.textContent += " (Admin)";
-            adminPanel.style.display = "block";
-        }
+        userEmailDisplay.textContent = user.email;
+        if (user.email === "besancon.noe@gmail.com") adminPanel.style.display = "block";
     } else {
-        userInfo.textContent = "";
-        loginBtn.style.display = "block";
-        logoutBtn.style.display = "none";
+        userEmailDisplay.textContent = "";
         adminPanel.style.display = "none";
     }
 });
@@ -34,14 +31,21 @@ auth.onAuthStateChanged(user => {
 function loadProjects() {
     db.collection("projects").onSnapshot(snapshot => {
         projectList.innerHTML = "";
-        snapshot.forEach(doc => {
-            const proj = doc.data();
-            const card = document.createElement("div");
-            card.className = "project-card";
-            card.innerHTML = `<h3>${proj.name}</h3><p>${proj.url}</p>`;
-            card.onclick = () => window.open(proj.url, "_blank");
-            projectList.appendChild(card);
-        });
+        if (snapshot.empty) {
+            noProjectMsg.style.display = "block";
+        } else {
+            noProjectMsg.style.display = "none";
+            snapshot.forEach(doc => {
+                const proj = doc.data();
+                const card = document.createElement("div");
+                card.className = "project-card";
+                card.innerHTML = `<h3>${proj.name}</h3><p>${proj.url}</p>`;
+                card.onclick = () => window.open(proj.url, "_blank");
+                projectList.appendChild(card);
+            });
+        }
+    }, err => {
+        console.error("Erreur Firestore:", err);
     });
 }
 loadProjects();
@@ -53,3 +57,9 @@ document.getElementById("add-project-btn").addEventListener("click", () => {
         db.collection("projects").add({ name, url });
     }
 });
+
+// Licence modal
+const modal = document.getElementById("license-modal");
+document.getElementById("license-link").onclick = () => modal.style.display = "block";
+document.querySelector(".close-btn").onclick = () => modal.style.display = "none";
+window.onclick = e => { if (e.target == modal) modal.style.display = "none"; };
