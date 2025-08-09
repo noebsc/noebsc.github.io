@@ -4,56 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub de Projets</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/4b74e5aef2.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="app.js" defer></script>
 </head>
 <body>
-
-<header>
-    <h1>Hub de Projets</h1>
-    <div class="account-container">
-        <button id="account-btn">Compte</button>
-        <div id="account-menu" class="hidden">
-            <div id="account-info"></div>
-            <div id="account-actions"></div>
+    <header>
+        <h1>Hub de Projets</h1>
+        <div class="account-container">
+            <button id="account-btn">Compte</button>
+            <div id="account-menu" class="hidden">
+                <div id="account-info"></div>
+                <div id="account-actions"></div>
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<main>
-    <div id="project-list" class="grid"></div>
-    <p id="no-project-msg" style="display:none;">Aucun projet disponible pour le moment.</p>
+    <main>
+        <div id="projects-container">
+            <p id="no-projects" class="hidden">Aucun projet pour le moment.</p>
+        </div>
+    </main>
 
-    <div id="admin-panel" style="display:none;">
-        <h2>Gestion des projets</h2>
-        <input type="text" id="project-name" placeholder="Nom du projet">
-        <input type="text" id="project-url" placeholder="URL du projet">
-        <button id="add-project-btn">Ajouter</button>
-    </div>
-</main>
-
-<footer class="glass">
-    <p>Fait avec ♥ par Noé. © 2025</p>
-    <p><a href="#" id="license-link">Licence MIT</a></p>
-</footer>
-
-<!-- Modal Licence -->
-<div id="license-modal" class="modal">
-    <div class="modal-content glass">
-        <span class="close-btn">&times;</span>
-        <h3>Licence MIT</h3>
-        <p>Copyright © 2025 Noé Besançon</p>
-        <p>Permission est accordée, gratuitement, à toute personne obtenant une copie de ce logiciel...</p>
-    </div>
-</div>
-
-<!-- Firebase compat -->
-<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
-
-<script src="firebase-config.js"></script>
-<script src="app.js" defer></script>
+    <footer>
+        <p>Fait avec ♥ par Noé. © 2025</p>
+        <a href="#" id="licence-link">Licence MIT</a>
+        <div id="licence-popup" class="hidden">
+            <h3>Licence MIT</h3>
+            <p>Copyright © 2025 Noé Besançon</p>
+            <p>Permission est accordée, gratuitement, à toute personne obtenant une copie de ce logiciel...</p>
+            <button id="close-licence">×</button>
+        </div>
+    </footer>
 </body>
 </html>
