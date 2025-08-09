@@ -219,6 +219,87 @@ footer {
     text-decoration: underline;
 }
 
+#project-popup {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+#project-popup.hidden {
+    display: none;
+}
+
+.project-modal {
+    background: #222;
+    border-radius: 12px;
+    padding: 30px 40px;
+    width: 320px;
+    position: relative;
+    box-shadow: 0 0 15px #000;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#close-project-popup {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+#project-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#project-form input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: white;
+    font-size: 1rem;
+}
+
+#project-form button[type="submit"] {
+    background: #555;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#project-form button[type="submit"]:hover {
+    background: #777;
+}
+
+.project-card button {
+    background: #4ea1f7;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.project-card button:hover {
+    background: #3b7ed4;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
