@@ -52,85 +52,64 @@ h1 {
     padding: 10px;
     width: 220px;
     animation: fadeIn 0.3s ease;
-    z-index: 9999;
+    z-index: 2000; 
 }
 
-/* Projects Container as grid */
+#account-menu.hidden {
+    display: none;
+}
+
+#account-menu button {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#account-menu button:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Projects */
 #projects-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
     padding: 30px;
     position: relative;
-    z-index: 0;
+    z-index: 1500;
 }
 
-/* Project Cards */
+#account-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    width: 220px;
+    animation: fadeIn 0.3s ease;
+    z-index: 9999; /* valeur très haute */
+}
+
+}
+
 .project-card {
     background: rgba(255,255,255,0.05);
-    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 250px;
-    box-sizing: border-box;
-    position: relative;
-    transition: transform 0.3s ease;
-    border: 2px solid transparent;
-    cursor: default;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    transition: 0.3s;
 }
 
 .project-card:hover {
-    transform: scale(1.03);
-}
-
-.project-card h3 {
-    margin: 0 0 20px 0;
-    font-weight: 700;
-    font-size: 1.3rem;
-}
-
-/* Stylish "Ouvrir" Button */
-.project-card a {
-    align-self: center;
-    padding: 12px 30px;
-    font-weight: 700;
-    font-size: 1rem;
-    color: white;
-    background: rgba(0,0,0,0.5);
-    border-radius: 12px;
-    text-decoration: none;
-    position: relative;
-    overflow: hidden;
-    z-index: 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    border: 3px solid;
-    border-width: 3px;
-    border-image-slice: 1;
-    border-image-source: linear-gradient(270deg, #00d2ff, #3a47d5, #00d2ff);
-    transition: border-image-source 0.5s ease;
-    animation: rotateGradient 6s linear infinite;
-}
-
-/* Gradient rotation animation */
-@keyframes rotateGradient {
-    0% {
-        border-image-source: linear-gradient(0deg, #00d2ff, #3a47d5, #00d2ff);
-    }
-    50% {
-        border-image-source: linear-gradient(180deg, #00d2ff, #3a47d5, #00d2ff);
-    }
-    100% {
-        border-image-source: linear-gradient(360deg, #00d2ff, #3a47d5, #00d2ff);
-    }
-}
-
-/* On hover, reverse animation and intensify */
-.project-card a:hover {
-    animation: rotateGradient 6s linear infinite reverse;
-    background: rgba(0,0,0,0.7);
-    box-shadow: 0 6px 15px rgba(58, 71, 213, 0.9);
+    transform: scale(1.02);
 }
 
 /* Footer */
@@ -169,30 +148,96 @@ footer {
     cursor: pointer;
 }
 
-/* Account menu buttons */
-#account-menu button {
-    width: 100%;
-    background: rgba(255,255,255,0.1);
-    border: none;
+/* Auth Popup */
+#auth-popup {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+#auth-popup.hidden {
+    display: none;
+}
+
+.auth-modal {
+    background: #222;
+    border-radius: 12px;
+    padding: 30px 40px;
+    width: 320px;
+    position: relative;
+    box-shadow: 0 0 15px #000;
+    animation: fadeIn 0.3s ease forwards;
     color: white;
-    padding: 8px;
-    margin-top: 5px;
-    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#close-auth {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
     cursor: pointer;
-    transition: 0.3s;
 }
 
-#account-menu button:hover {
-    background: rgba(255,255,255,0.2);
+.auth-modal form {
+    display: none;
+    flex-direction: column;
 }
 
-/* Fade in animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+.auth-modal form.active {
+    display: flex;
 }
 
-/* Project popup styles */
+.auth-modal h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.auth-modal input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: white;
+    font-size: 1rem;
+}
+
+.auth-modal button[type="submit"] {
+    background: #555;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.auth-modal button[type="submit"]:hover {
+    background: #777;
+}
+
+.auth-modal p {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.link {
+    color: #4ea1f7;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 #project-popup {
     position: fixed;
     top:0; left:0; right:0; bottom:0;
@@ -259,7 +304,6 @@ footer {
     background: #777;
 }
 
-/* Buttons inside project cards (modifier) */
 .project-card button {
     background: #4ea1f7;
     border: none;
@@ -269,9 +313,13 @@ footer {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s;
-    margin-left: 10px;
 }
 
 .project-card button:hover {
     background: #3b7ed4;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
