@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js";
 import { 
-    onAuthStateChanged, signOut 
+    onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     collection, getDocs 
@@ -12,6 +12,13 @@ const accountInfo = document.getElementById("account-info");
 const accountActions = document.getElementById("account-actions");
 const projectsContainer = document.getElementById("projects-container");
 const noProjects = document.getElementById("no-projects");
+
+const authPopup = document.getElementById("auth-popup");
+const closeAuthBtn = document.getElementById("close-auth");
+const loginForm = document.getElementById("login-form");
+const signupForm = document.getElementById("signup-form");
+const showSignupLink = document.getElementById("show-signup");
+const showLoginLink = document.getElementById("show-login");
 
 // Toggle menu
 accountBtn.addEventListener("click", () => {
@@ -33,6 +40,7 @@ async function loadProjects() {
         noProjects.classList.remove("hidden");
         return;
     }
+    noProjects.classList.add("hidden");
     querySnapshot.forEach(doc => {
         const project = doc.data();
         const div = document.createElement("div");
@@ -58,13 +66,65 @@ onAuthStateChanged(auth, user => {
             <button id="signup-btn">Créer un compte</button>
         `;
         document.getElementById("login-btn").addEventListener("click", () => {
-            alert("Formulaire de connexion ici");
+            authPopup.classList.remove("hidden");
+            loginForm.classList.add("active");
+            signupForm.classList.remove("active");
         });
         document.getElementById("signup-btn").addEventListener("click", () => {
-            alert("Formulaire d'inscription ici");
+            authPopup.classList.remove("hidden");
+            signupForm.classList.add("active");
+            loginForm.classList.remove("active");
         });
     }
     loadProjects();
+});
+
+// Fermer popup
+closeAuthBtn.addEventListener("click", () => {
+    authPopup.classList.add("hidden");
+});
+
+// Switch entre login/signup
+showSignupLink.addEventListener("click", () => {
+    loginForm.classList.remove("active");
+    signupForm.classList.add("active");
+});
+showLoginLink.addEventListener("click", () => {
+    signupForm.classList.remove("active");
+    loginForm.classList.add("active");
+});
+
+// Soumission formulaire connexion
+loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = loginForm["login-email"].value;
+    const password = loginForm["login-password"].value;
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        authPopup.classList.add("hidden");
+        loginForm.reset();
+    } catch (error) {
+        alert("Erreur connexion : " + error.message);
+    }
+});
+
+// Soumission formulaire inscription
+signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = signupForm["signup-email"].value;
+    const password = signupForm["signup-password"].value;
+    const confirm = signupForm["signup-password-confirm"].value;
+    if(password !== confirm) {
+        alert("Les mots de passe ne correspondent pas.");
+        return;
+    }
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        authPopup.classList.add("hidden");
+        signupForm.reset();
+    } catch (error) {
+        alert("Erreur inscription : " + error.message);
+    }
 });
 
 // Licence
