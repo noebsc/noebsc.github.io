@@ -320,6 +320,21 @@ footer {
     margin-top: 70px;
 }
 
+#account-menu {
+    position: fixed !important;
+    top: 60px; /* ajuste selon ta hauteur header */
+    right: 30px; /* même marge que header */
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    width: 220px;
+    animation: fadeIn 0.3s ease;
+    z-index: 99999 !important;
+    pointer-events: auto; /* pour être cliquable */
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
