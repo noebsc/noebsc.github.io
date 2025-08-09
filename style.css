@@ -328,7 +328,7 @@ footer {
 
 #account-menu {
     position: fixed !important;
-    top: 60px !important;
+    top: 70px !important;
     right: 30px !important;
     background: rgba(255,255,255,0.05) !important;
     backdrop-filter: blur(10px) !important;
