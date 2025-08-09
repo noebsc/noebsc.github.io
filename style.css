@@ -317,7 +317,7 @@ footer {
 }
 
 .project-card:first-child {
-    border-top: 10px solid white;
+    border-top: 70px;
 }
 
 @keyframes fadeIn {
