@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub de Projets</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a2e0b1e6d0.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/4b74e5aef2.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
+<header class="glass">
     <h1>Hub de Projets</h1>
     <div id="user-section">
         <i id="user-icon" class="fas fa-user-circle"></i>
@@ -30,14 +30,14 @@
     </div>
 </main>
 
-<footer>
+<footer class="glass">
     <p>Fait avec ♥ par Noé. © 2025</p>
     <p><a href="#" id="license-link">Licence MIT</a></p>
 </footer>
 
 <!-- Modal Licence -->
 <div id="license-modal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content glass">
         <span class="close-btn">&times;</span>
         <h3>Licence MIT</h3>
         <p>Copyright © 2025 Noé Besançon</p>
@@ -51,6 +51,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
 
 <script src="firebase-config.js"></script>
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
