@@ -316,6 +316,10 @@ footer {
     background: #3b7ed4;
 }
 
+.project-card:first-child {
+    border-top: 10px solid white;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
