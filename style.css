@@ -106,10 +106,7 @@ h1 {
     border-radius: 12px;
     margin-bottom: 20px;
     transition: 0.3s;
-}
-
-.project-card:hover {
-    transform: scale(1.02);
+    z-index: 1000
 }
 
 /* Footer */
