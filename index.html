@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Hub de Projets</title>
+    <title>Hub de Projets</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a2e0b1e6d0.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <header>
-    <h1>🚀 Mon Hub de Projets</h1>
-    <div id="user-info"></div>
-    <button id="login-btn">Connexion</button>
-    <button id="logout-btn" style="display:none;">Déconnexion</button>
+    <h1>Hub de Projets</h1>
+    <div id="user-section">
+        <i id="user-icon" class="fas fa-user-circle"></i>
+        <span id="user-email"></span>
+    </div>
 </header>
 
 <main>
     <div id="project-list" class="grid"></div>
+    <p id="no-project-msg" style="display:none;">Aucun projet disponible pour le moment.</p>
+
     <div id="admin-panel" style="display:none;">
         <h2>Gestion des projets</h2>
         <input type="text" id="project-name" placeholder="Nom du projet">
@@ -25,7 +30,22 @@
     </div>
 </main>
 
-<!-- Firebase compat version (ancienne API) -->
+<footer>
+    <p>Fait avec ♥ par Noé. © 2025</p>
+    <p><a href="#" id="license-link">Licence MIT</a></p>
+</footer>
+
+<!-- Modal Licence -->
+<div id="license-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h3>Licence MIT</h3>
+        <p>Copyright © 2025 Noé Besançon</p>
+        <p>Permission est accordée, gratuitement, à toute personne obtenant une copie de ce logiciel...</p>
+    </div>
+</div>
+
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
