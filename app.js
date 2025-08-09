@@ -103,6 +103,7 @@ onAuthStateChanged(auth, user => {
         // Si admin, ajouter bouton Ajouter projet
         if(user.email === ADMIN_EMAIL){
             const addBtn = document.createElement("button");
+            accountInfo.innerHTML = `<strong>"Administrateur"</strong>`;
             addBtn.id = "add-project-btn";
             addBtn.textContent = "Ajouter un projet";
             addBtn.style.marginLeft = "10px";
