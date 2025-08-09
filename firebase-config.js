@@ -1,11 +1,12 @@
 const firebaseConfig = {
-    apiKey: "TON_API_KEY",
-    authDomain: "TON_PROJET.firebaseapp.com",
-    projectId: "TON_PROJET",
-    storageBucket: "TON_PROJET.appspot.com",
-    messagingSenderId: "TON_SENDER_ID",
-    appId: "TON_APP_ID"
-};
+    apiKey: "AIzaSyApPQ_SmqH-ZfGxRXO0k2j371FxfFN-QnA",
+    authDomain: "noehub-2e774.firebaseapp.com",
+    projectId: "noehub-2e774",
+    storageBucket: "noehub-2e774.firebasestorage.app",
+    messagingSenderId: "677903842246",
+    appId: "1:677903842246:web:a30c11f9a19f95b02a50c7",
+    measurementId: "G-6602Y6L9VE"
+  };
 
 firebase.initializeApp(firebaseConfig);
 
