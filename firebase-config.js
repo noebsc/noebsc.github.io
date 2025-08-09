@@ -5,10 +5,11 @@ const firebaseConfig = {
     storageBucket: "noehub-2e774.firebasestorage.app",
     messagingSenderId: "677903842246",
     appId: "1:677903842246:web:a30c11f9a19f95b02a50c7",
-    measurementId: "G-6602Y6L9VE"
-  };
+};
 
+// Initialisation Firebase (ancienne syntaxe)
 firebase.initializeApp(firebaseConfig);
 
+// Auth et base Firestore
 const auth = firebase.auth();
 const db = firebase.firestore();
