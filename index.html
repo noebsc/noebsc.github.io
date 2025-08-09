@@ -13,10 +13,7 @@
         <h1>Hub de Projets</h1>
         <div class="account-container">
             <button id="account-btn">Compte</button>
-            <div id="account-menu" class="hidden">
-                <div id="account-info"></div>
-                <div id="account-actions"></div>
-            </div>
+            <!-- Menu retiré d’ici -->
         </div>
     </header>
 
@@ -36,7 +33,14 @@
             <button id="close-licence">×</button>
         </div>
     </footer>
-    <!-- Ajout dans body, juste avant </body> -->
+
+    <!-- Menu compte déplacé ici, tout à la fin -->
+    <div id="account-menu" class="hidden">
+        <div id="account-info"></div>
+        <div id="account-actions"></div>
+    </div>
+
+    <!-- Popup Auth (déjà présent) -->
     <div id="auth-popup" class="hidden">
         <div class="auth-modal">
             <button id="close-auth" title="Fermer">×</button>
