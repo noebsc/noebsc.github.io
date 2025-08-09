@@ -41,20 +41,6 @@ h1 {
     background: rgba(255,255,255,0.2);
 }
 
-#account-menu {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 10px;
-    width: 220px;
-    animation: fadeIn 0.3s ease;
-    z-index: 2000; 
-}
-
 #account-menu.hidden {
     display: none;
 }
@@ -342,19 +328,18 @@ footer {
 
 #account-menu {
     position: fixed !important;
-    top: 60px;
-    right: 30px;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 10px;
-    width: 220px;
-    animation: fadeIn 0.3s ease;
-    z-index: 999999 !important; /* énorme */
-    pointer-events: auto;
+    top: 60px !important;
+    right: 30px !important;
+    background: rgba(255,255,255,0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    width: 220px !important;
+    animation: fadeIn 0.3s ease !important;
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
 }
-
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
