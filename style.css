@@ -1,17 +1,28 @@
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --border-glass: rgba(255, 255, 255, 0.18);
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     margin: 0;
-    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-    color: #1e293b;
+    background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+    color: white;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
+/* Effet glass */
+.glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
 header {
-    background: white;
-    border-bottom: 2px solid rgba(0,0,0,0.1);
-    padding: 20px;
+    padding: 15px 25px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,9 +30,8 @@ header {
 }
 
 header h1 {
-    font-weight: 600;
     font-size: 2rem;
-    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 #user-section {
@@ -33,14 +43,15 @@ header h1 {
 }
 
 #user-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
     cursor: pointer;
-    color: #3b82f6;
-    transition: transform 0.2s;
+    color: white;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 #user-icon:hover {
     transform: scale(1.1);
+    color: #00d4ff;
 }
 
 .grid {
@@ -51,44 +62,44 @@ header h1 {
 }
 
 .project-card {
-    background: white;
-    border: 1px solid rgba(0,0,0,0.2);
-    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
     padding: 20px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     cursor: pointer;
+    animation: fadeInUp 0.5s ease;
 }
 
 .project-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    border-color: #00d4ff;
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
 }
 
 #admin-panel {
     margin: 20px;
     padding: 20px;
-    background: white;
-    border: 1px solid rgba(0,0,0,0.15);
-    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
 }
 
 #admin-panel input, #admin-panel button {
     margin: 5px;
     padding: 10px;
+    border-radius: 8px;
+    border: none;
 }
 
 footer {
     margin-top: auto;
     padding: 15px;
-    background: white;
-    border-top: 2px solid rgba(0,0,0,0.1);
     text-align: center;
-    font-size: 0.9rem;
 }
 
 footer a {
-    color: #3b82f6;
+    color: #00d4ff;
     text-decoration: none;
 }
 
@@ -101,14 +112,13 @@ footer a {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.6);
 }
 
 .modal-content {
-    background-color: white;
     margin: auto;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     width: 80%;
     max-width: 500px;
 }
@@ -117,4 +127,10 @@ footer a {
     float: right;
     cursor: pointer;
     font-size: 1.5rem;
+}
+
+/* Animation fade-in */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
