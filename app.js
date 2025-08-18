@@ -22,6 +22,55 @@ let projects = [];
 let currentUser = null;
 let editingProjectId = null;
 
+// ===============================
+// POP-UP DON - FORÇAGE TOTAL
+// ===============================
+const donationPopup = document.createElement("div");
+donationPopup.id = "donation-popup";
+donationPopup.innerHTML = `
+  <div class="donation-modal">
+    <button id="close-donation-popup" title="Fermer">&times;</button>
+    <div class="donation-content">
+      <h2>💝 Un petit don ? Même 1€ ça compte énormément !</h2>
+      <p>🙏 Bonjour ! Je suis Noé, développeur passionné qui partage gratuitement tous ses projets en open source.</p>
+      <p>💻 Vos dons m'aident à continuer de créer et maintenir ces outils accessibles à tous, sans publicité ni frais cachés.</p>
+      <p><strong>Chaque geste compte</strong>, même le plus petit. C'est grâce à la générosité de personnes comme vous que je peux continuer cette aventure ! ❤️</p>
+      <a href="https://www.buymeacoffee.com/noebsc" target="_blank" rel="noopener noreferrer" class="donation-button">
+        ☕ Faire un don sur BuyMeACoffee
+      </a>
+      <p class="donation-note">Merci infiniment pour votre soutien ! 🌟</p>
+    </div>
+  </div>
+`;
+
+// FORÇAGE IMMÉDIAT AU CHARGEMENT (supprime la classe hidden et sessionStorage)
+donationPopup.style.cssText = `
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+  background: rgba(0,0,0,0.85) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 999999999 !important;
+`;
+
+document.body.appendChild(donationPopup);
+
+// MULTIPLES TENTATIVES D'AFFICHAGE
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 1');
+}, 100);
+
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 2');
+}, 500);
+
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 3');
+}, 1000);
 
 // Gestion de la fermeture
 document.addEventListener('click', (e) => {
