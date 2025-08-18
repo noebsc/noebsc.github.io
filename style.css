@@ -435,6 +435,32 @@ pointer-events: auto !important;
   }
 }
 
+/* CORRECTIFS```INDEX POP-UPS */
+#project-popup {
+  z-index: 2147483647 !important;
+}
+
+.project-modal {
+  z-index: 2147483648 !important;
+}
+
+#donation-popup {
+  z-index: 2147483646 !important;
+}
+
+.donation-modal {
+  z-index: 2147483647 !important;
+}
+
+/* Masquer correct```nt les pop-ups cachés */
+.hidden {
+  display: none !important;
+}
+
+.donation-popup-hidden {
+  display: none !important;
+}
+
 @keyframes donationFadeInScale {
   0% { 
     opacity: 0; 
