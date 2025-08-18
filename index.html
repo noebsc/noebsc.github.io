@@ -68,15 +68,25 @@
           setTimeout(() => {
             const popup = document.createElement('div');
             popup.innerHTML = `
-              <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:999999999; display:flex; justify-content:center; align-items:center;">
-                <div style="background:#222; padding:30px; border-radius:15px; text-align:center; color:white;">
-                  <h2>💝 Un petit don ? Même 1€ ça compte !</h2>
-                  <p>Merci de soutenir mes projets open source !</p>
-                  <a href="https://www.buymeacoffee.com/noebsc" target="_blank" style="background:#ff813f; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; display:inline-block; margin:10px;">
-                    ☕ Faire un don
+                <div class="donation-modal">
+                <button id="close-donation-popup" title="Fermer">&times;</button>
+                <div class="donation-content">
+                  <h2>💝 Un petit don, même 1€, c’est un énorme soutien 💌</h2>
+                  <p style="font-style: italic; font-size: 1.1rem;">
+                    Chaque contribution m’aide concrètement à consacrer du temps pour créer et maintenir <b>des outils accessibles à tous, toujours gratuits et sans pub</b>.
+                  </p>
+                  <p>
+                    🙏 Je développe et partage ces projets avec <b>passion</b> et l’espoir de rendre le web plus ouvert et utile à chacun.<br>
+                    Votre générosité <b>change tout</b> : sans elle, cette aventure open source s’arrêterait.
+                  </p>
+                  <p style="font-weight:600;">
+                    <span style="color:#ff813f;">Vous êtes la raison pour laquelle ces projets restent vivants et progressent. Merci d’y croire – votre geste compte, vraiment.</span>
+                  </p>
+                  <a href="https://www.buymeacoffee.com/noebsc" target="_blank" rel="noopener noreferrer" class="donation-button">
+                    ☕ Faire un don sur BuyMeACoffee
                   </a>
-                  <br>
-                  <button onclick="this.parentElement.parentElement.remove()" style="background:transparent; border:none; color:#ccc; font-size:20px; cursor:pointer; margin-top:10px;">Fermer</button>
+                  <p class="donation-note">Merci du fond du cœur pour votre soutien précieux ❤️<br>
+                  Même 1€, c’est déjà énorme.</p>
                 </div>
               </div>
             `;
