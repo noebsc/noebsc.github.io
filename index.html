@@ -91,7 +91,29 @@
               </div>
             `;
             document.body.appendChild(popup);
+            
             console.log('Pop-up de don forcé ajouté au DOM');
+          }, 1000);
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+            donationPopup.classList.remove('donation-popup-hidden');
+            // Attache les écouteurs APRÈS que le DOM du popup soit créé (donc croix présente !)
+            const closeDonationBtn = document.querySelector('#close-donation-popup');
+            if (closeDonationBtn) {
+              closeDonationBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Empêche la propagation au parent
+                donationPopup.remove(); // Supprime l'élément du DOM, plus aucun affichage possible
+                console.log('Pop-up don fermé via bouton X');
+              });
+            }
+            // Clic sur l'arrière-plan (donationPopup lui-même)
+            donationPopup.addEventListener('click', function(e) {
+              if (e.target === donationPopup) {
+                donationPopup.remove();
+                console.log('Pop-up don fermé via clic arrière-plan');
+              }
+            });
           }, 1000);
         });
     </script>
