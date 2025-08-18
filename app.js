@@ -1,10 +1,6 @@
 import { auth, db } from "./firebase-config.js";
-import { 
-    onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-    collection, getDocs, addDoc, updateDoc, doc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, getDocs, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const ADMIN_EMAIL = "besancon.noe@gmail.com";
 
@@ -14,7 +10,6 @@ const accountInfo = document.getElementById("account-info");
 const accountActions = document.getElementById("account-actions");
 const projectsContainer = document.getElementById("projects-container");
 const noProjects = document.getElementById("no-projects");
-
 const authPopup = document.getElementById("auth-popup");
 const closeAuthBtn = document.getElementById("close-auth");
 const loginForm = document.getElementById("login-form");
@@ -27,161 +22,115 @@ const projectPopup = document.createElement("div");
 projectPopup.id = "project-popup";
 projectPopup.classList.add("hidden");
 projectPopup.innerHTML = `
-  <div class="project-modal">
-    <button id="close-project-popup" title="Fermer">×</button>
-    <h2 id="project-popup-title">Ajouter un projet</h2>
+<div class="project-modal">
+    <button id="close-project-popup" title="Fermer">&times;</button>
+    <h2>Ajouter/Modifier un projet</h2>
     <form id="project-form">
-      <input type="text" id="project-name" placeholder="Nom du projet" required>
-      <input type="url" id="project-url" placeholder="URL du projet" required>
-      <button type="submit">Enregistrer</button>
+        <input type="text" id="project-title" placeholder="Titre du projet" required>
+        <input type="text" id="project-description" placeholder="Description" required>
+        <input type="url" id="project-url" placeholder="URL du projet" required>
+        <button type="submit">Ajouter le projet</button>
     </form>
-  </div>
+</div>
 `;
+
 document.body.appendChild(projectPopup);
 
-const closeProjectPopupBtn = document.getElementById("close-project-popup");
-const projectForm = document.getElementById("project-form");
-const projectNameInput = document.getElementById("project-name");
-const projectUrlInput = document.getElementById("project-url");
-const projectPopupTitle = document.getElementById("project-popup-title");
+// ===============================
+// NOUVEAU : POP-UP DON TOUCHANT
+// ===============================
+const donationPopup = document.createElement("div");
+donationPopup.id = "donation-popup";
+donationPopup.classList.add("donation-popup-hidden");
+donationPopup.innerHTML = `
+  <div class="donation-modal">
+    <button id="close-donation-popup" title="Fermer">&times;</button>
+    <div class="donation-content">
+      <h2>💝 Un petit don ? Même 1€ ça compte énormément !</h2>
+      <p>🙏 Bonjour ! Je suis Noé, développeur passionné qui partage gratuitement tous ses projets en open source.</p>
+      <p>💻 Vos dons m'aident à continuer de créer et maintenir ces outils accessibles à tous, sans publicité ni frais cachés.</p>
+      <p><strong>Chaque geste compte</strong>, même le plus petit. C'est grâce à la générosité de personnes comme vous que je peux continuer cette aventure ! ❤️</p>
+      <a href="https://www.buymeacoffee.com/noebsc" target="_blank" rel="noopener noreferrer" class="donation-button">
+        ☕ Faire un don sur BuyMeACoffee
+      </a>
+      <p class="donation-note">Merci infiniment pour votre soutien ! 🌟</p>
+    </div>
+  </div>
+`;
+document.body.appendChild(donationPopup);
 
-let editProjectId = null; // null = ajout, sinon id doc à modifier
+// Afficher le pop-up au chargement, une seule fois par session[14][19]
+window.addEventListener('DOMContentLoaded', () => {
+  // Petite pause pour laisser la page se charger complètement
+  setTimeout(() => {
+    if (!sessionStorage.getItem('donationPopupShown')) {
+      donationPopup.classList.remove('donation-popup-hidden');
+      sessionStorage.setItem('donationPopupShown', 'true');
+    }
+  }, 1000);
+});
 
-// Toggle menu
+// Gestion de la fermeture du pop-up
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'close-donation-popup' || e.target.id === 'donation-popup') {
+    donationPopup.classList.add('donation-popup-hidden');
+  }
+});
+
+// Variables pour la gestion des projets
+let projects = [];
+let currentUser = null;
+let editingProjectId = null;
+
+// Écouter les changements d'authentification
+onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    if (user) {
+        accountInfo.innerHTML = `
+            <div style="font-size: 0.9rem; color: #ccc;">Connecté en tant que</div>
+            <div style="font-weight: 600;">${user.email}</div>
+        `;
+        
+        // Actions selon le type d'utilisateur
+        if (user.email === ADMIN_EMAIL) {
+            accountActions.innerHTML = `
+                <button onclick="addProject()">Ajouter un projet</button>
+                <button onclick="signOut(auth)">Se déconnecter</button>
+            `;
+        } else {
+            accountActions.innerHTML = `
+                <button onclick="signOut(auth)">Se déconnecter</button>
+            `;
+        }
+        
+        await loadProjects();
+    } else {
+        accountInfo.innerHTML = `<div>Non connecté</div>`;
+        accountActions.innerHTML = `
+            <button onclick="showAuthPopup()">Se connecter</button>
+        `;
+        await loadProjects();
+    }
+});
+
+// Gestion du menu compte
 accountBtn.addEventListener("click", () => {
     accountMenu.classList.toggle("hidden");
 });
 
-// Fermer menu si clic extérieur
+// Fermer le menu si on clique ailleurs
 document.addEventListener("click", (e) => {
     if (!accountBtn.contains(e.target) && !accountMenu.contains(e.target)) {
         accountMenu.classList.add("hidden");
     }
 });
 
-async function loadProjects() {
-    const querySnapshot = await getDocs(collection(db, "projects"));
-    projectsContainer.innerHTML = "";
-    if (querySnapshot.empty) {
-        noProjects.classList.remove("hidden");
-        return;
-    }
-    noProjects.classList.add("hidden");
-
-    querySnapshot.forEach(docSnap => {
-        const project = docSnap.data();
-        const div = document.createElement("div");
-        div.classList.add("project-card");
-        div.innerHTML = `<h3>${project.name}</h3><a href="${project.url}" target="_blank">Ouvrir</a>`;
-
-        // Si admin, ajouter bouton modifier
-        if(currentUser && currentUser.email === ADMIN_EMAIL){
-            const editBtn = document.createElement("button");
-            editBtn.textContent = "Modifier";
-            editBtn.style.marginLeft = "10px";
-            editBtn.style.cursor = "pointer";
-            editBtn.addEventListener("click", () => {
-                openProjectPopup("modifier", docSnap.id, project.name, project.url);
-            });
-            div.appendChild(editBtn);
-        }
-
-        projectsContainer.appendChild(div);
-    });
+// Fonctions d'authentification
+function showAuthPopup() {
+    authPopup.classList.remove("hidden");
+    loginForm.classList.add("active");
+    signupForm.classList.remove("active");
 }
-
-let currentUser = null;
-
-onAuthStateChanged(auth, user => {
-    currentUser = user;
-    accountActions.innerHTML = "";
-
-    if (user) {
-        accountInfo.innerHTML = `<strong>${user.email}</strong>`;
-        accountActions.innerHTML = `<button id="logout-btn">Déconnexion</button>`;
-
-        // Si admin, ajouter bouton Ajouter projet
-        if(user.email === ADMIN_EMAIL){
-            const addBtn = document.createElement("button");
-            accountInfo.innerHTML = `<strong>Administrateur 🔧</strong>`;
-            addBtn.id = "add-project-btn";
-            addBtn.textContent = "Ajouter un projet";
-            addBtn.style.marginLeft = "0px";
-            addBtn.addEventListener("click", () => openProjectPopup("ajouter"));
-            accountActions.appendChild(addBtn);
-        }
-
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            signOut(auth);
-        });
-    } else {
-        accountInfo.innerHTML = `<em>Non connecté</em>`;
-        accountActions.innerHTML = `
-            <button id="login-btn">Connexion</button>
-            <button id="signup-btn">Créer un compte</button>
-        `;
-        document.getElementById("login-btn").addEventListener("click", () => {
-            authPopup.classList.remove("hidden");
-            loginForm.classList.add("active");
-            signupForm.classList.remove("active");
-        });
-        document.getElementById("signup-btn").addEventListener("click", () => {
-            authPopup.classList.remove("hidden");
-            signupForm.classList.add("active");
-            loginForm.classList.remove("active");
-        });
-    }
-    loadProjects();
-});
-
-// Fonctions ouverture/fermeture popup projet
-function openProjectPopup(mode, id = null, name = "", url = "") {
-    projectPopup.classList.remove("hidden");
-    if(mode === "modifier"){
-        projectPopupTitle.textContent = "Modifier le projet";
-        projectNameInput.value = name;
-        projectUrlInput.value = url;
-        editProjectId = id;
-    } else {
-        projectPopupTitle.textContent = "Ajouter un projet";
-        projectForm.reset();
-        editProjectId = null;
-    }
-}
-
-closeProjectPopupBtn.addEventListener("click", () => {
-    projectPopup.classList.add("hidden");
-});
-
-// Enregistrer ajout ou modif projet
-projectForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const name = projectNameInput.value.trim();
-    const url = projectUrlInput.value.trim();
-
-    if(editProjectId){
-        // Modifier projet existant
-        const projectRef = doc(db, "projects", editProjectId);
-        try {
-            await updateDoc(projectRef, { name, url });
-            alert("Projet modifié avec succès.");
-        } catch (err) {
-            alert("Erreur lors de la modification : " + err.message);
-        }
-    } else {
-        // Ajouter nouveau projet
-        try {
-            await addDoc(collection(db, "projects"), { name, url });
-            alert("Projet ajouté avec succès.");
-        } catch (err) {
-            alert("Erreur lors de l'ajout : " + err.message);
-        }
-    }
-    projectPopup.classList.add("hidden");
-    loadProjects();
-});
-
-// === Le reste du code auth popup reste inchangé ===
 
 closeAuthBtn.addEventListener("click", () => {
     authPopup.classList.add("hidden");
@@ -191,46 +140,152 @@ showSignupLink.addEventListener("click", () => {
     loginForm.classList.remove("active");
     signupForm.classList.add("active");
 });
+
 showLoginLink.addEventListener("click", () => {
     signupForm.classList.remove("active");
     loginForm.classList.add("active");
 });
 
+// Gestion des formulaires d'auth
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = loginForm["login-email"].value;
-    const password = loginForm["login-password"].value;
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    
     try {
         await signInWithEmailAndPassword(auth, email, password);
         authPopup.classList.add("hidden");
-        loginForm.reset();
     } catch (error) {
-        alert("Erreur connexion : " + error.message);
+        alert("Erreur de connexion : " + error.message);
     }
 });
 
 signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = signupForm["signup-email"].value;
-    const password = signupForm["signup-password"].value;
-    const confirm = signupForm["signup-password-confirm"].value;
-    if(password !== confirm) {
-        alert("Les mots de passe ne correspondent pas.");
-        return;
-    }
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    
     try {
         await createUserWithEmailAndPassword(auth, email, password);
         authPopup.classList.add("hidden");
-        signupForm.reset();
     } catch (error) {
-        alert("Erreur inscription : " + error.message);
+        alert("Erreur d'inscription : " + error.message);
     }
 });
 
-// Licence popup reste inchangé
-document.getElementById("licence-link").addEventListener("click", () => {
-    document.getElementById("licence-popup").classList.remove("hidden");
+// Gestion des projets
+async function loadProjects() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "projects"));
+        projects = [];
+        querySnapshot.forEach((doc) => {
+            projects.push({ id: doc.id, ...doc.data() });
+        });
+        
+        displayProjects();
+    } catch (error) {
+        console.error("Erreur lors du chargement des projets:", error);
+    }
+}
+
+function displayProjects() {
+    if (projects.length === 0) {
+        projectsContainer.innerHTML = '<div id="no-projects">Aucun projet pour le moment.</div>';
+        return;
+    }
+    
+    projectsContainer.innerHTML = projects.map(project => `
+        <div class="project-card">
+            <h3>${project.title}</h3>
+            <p>${project.description}</p>
+            <a href="${project.url}" target="_blank">Voir le projet</a>
+            ${currentUser && currentUser.email === ADMIN_EMAIL ? 
+                `<button onclick="editProject('${project.id}')">Modifier</button>
+                 <button onclick="deleteProject('${project.id}')">Supprimer</button>` : ''}
+        </div>
+    `).join('');
+}
+
+// Fonctions pour les projets (admin uniquement)
+function addProject() {
+    if (currentUser && currentUser.email === ADMIN_EMAIL) {
+        editingProjectId = null;
+        document.getElementById("project-title").value = "";
+        document.getElementById("project-description").value = "";
+        document.getElementById("project-url").value = "";
+        projectPopup.classList.remove("hidden");
+    }
+}
+
+function editProject(projectId) {
+    if (currentUser && currentUser.email === ADMIN_EMAIL) {
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            editingProjectId = projectId;
+            document.getElementById("project-title").value = project.title;
+            document.getElementById("project-description").value = project.description;
+            document.getElementById("project-url").value = project.url;
+            projectPopup.classList.remove("hidden");
+        }
+    }
+}
+
+async function deleteProject(projectId) {
+    if (currentUser && currentUser.email === ADMIN_EMAIL) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+            try {
+                await deleteDoc(doc(db, "projects", projectId));
+                await loadProjects();
+            } catch (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+            }
+        }
+    }
+}
+
+// Gestion du formulaire projet
+document.getElementById("project-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+    
+    const title = document.getElementById("project-title").value;
+    const description = document.getElementById("project-description").value;
+    const url = document.getElementById("project-url").value;
+    
+    try {
+        if (editingProjectId) {
+            // Modification
+            await updateDoc(doc(db, "projects", editingProjectId), {
+                title,
+                description,
+                url,
+                updatedAt: new Date()
+            });
+        } else {
+            // Ajout
+            await addDoc(collection(db, "projects"), {
+                title,
+                description,
+                url,
+                createdAt: new Date()
+            });
+        }
+        
+        projectPopup.classList.add("hidden");
+        await loadProjects();
+    } catch (error) {
+        alert("Erreur lors de l'enregistrement : " + error.message);
+    }
 });
-document.getElementById("close-licence").addEventListener("click", () => {
-    document.getElementById("licence-popup").classList.add("hidden");
+
+// Fermeture du popup projet
+document.getElementById("close-project-popup").addEventListener("click", () => {
+    projectPopup.classList.add("hidden");
 });
+
+// Rendre les fonctions globales
+window.addProject = addProject;
+window.editProject = editProject;
+window.deleteProject = deleteProject;
+window.showAuthPopup = showAuthPopup;
