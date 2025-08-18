@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, getDocs, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const ADMIN_EMAIL = "besancon.noe@gmail.com";
 
@@ -17,27 +17,13 @@ const signupForm = document.getElementById("signup-form");
 const showSignupLink = document.getElementById("show-signup");
 const showLoginLink = document.getElementById("show-login");
 
-// Nouveau : pop-up ajout/modif projet
-const projectPopup = document.createElement("div");
-projectPopup.id = "project-popup";
-projectPopup.classList.add("hidden");
-projectPopup.innerHTML = `
-<div class="project-modal">
-    <button id="close-project-popup" title="Fermer">&times;</button>
-    <h2>Ajouter/Modifier un projet</h2>
-    <form id="project-form">
-        <input type="text" id="project-title" placeholder="Titre du projet" required>
-        <input type="text" id="project-description" placeholder="Description" required>
-        <input type="url" id="project-url" placeholder="URL du projet" required>
-        <button type="submit">Ajouter le projet</button>
-    </form>
-</div>
-`;
-
-document.body.appendChild(projectPopup);
+// Variables globales
+let projects = [];
+let currentUser = null;
+let editingProjectId = null;
 
 // ===============================
-// NOUVEAU : POP-UP DON TOUCHANT
+// POP-UP DON - CRÉATION ET AFFICHAGE
 // ===============================
 const donationPopup = document.createElement("div");
 donationPopup.id = "donation-popup";
@@ -59,30 +45,48 @@ donationPopup.innerHTML = `
 `;
 document.body.appendChild(donationPopup);
 
-// Afficher le pop-up au chargement, une seule fois par session[14][19]
-window.addEventListener('DOMContentLoaded', () => {
-  // Petite pause pour laisser la page se charger complètement
+// Afficher le pop-up de don au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Page chargée, vérification pop-up don...');
   setTimeout(() => {
     if (!sessionStorage.getItem('donationPopupShown')) {
+      console.log('Affichage du pop-up de don');
       donationPopup.classList.remove('donation-popup-hidden');
       sessionStorage.setItem('donationPopupShown', 'true');
     }
-  }, 1000);
+  }, 1500);
 });
 
-// Gestion de la fermeture du pop-up
+// Fermeture du pop-up de don
 document.addEventListener('click', (e) => {
-  if (e.target.id === 'close-donation-popup' || e.target.id === 'donation-popup') {
+  if (e.target.id === 'close-donation-popup' || e.target === donationPopup) {
     donationPopup.classList.add('donation-popup-hidden');
   }
 });
 
-// Variables pour la gestion des projets
-let projects = [];
-let currentUser = null;
-let editingProjectId = null;
+// ===============================
+// POP-UP PROJET - CRÉATION
+// ===============================
+const projectPopup = document.createElement("div");
+projectPopup.id = "project-popup";
+projectPopup.classList.add("hidden");
+projectPopup.innerHTML = `
+<div class="project-modal">
+    <button id="close-project-popup" title="Fermer">&times;</button>
+    <h2>Ajouter/Modifier un projet</h2>
+    <form id="project-form">
+        <input type="text" id="project-title" placeholder="Titre du projet" required>
+        <input type="text" id="project-description" placeholder="Description" required>
+        <input type="url" id="project-url" placeholder="URL du projet" required>
+        <button type="submit">Enregistrer le projet</button>
+    </form>
+</div>
+`;
+document.body.appendChild(projectPopup);
 
-// Écouter les changements d'authentification
+// ===============================
+// AUTHENTIFICATION
+// ===============================
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
@@ -91,7 +95,6 @@ onAuthStateChanged(auth, async (user) => {
             <div style="font-weight: 600;">${user.email}</div>
         `;
         
-        // Actions selon le type d'utilisateur
         if (user.email === ADMIN_EMAIL) {
             accountActions.innerHTML = `
                 <button onclick="addProject()">Ajouter un projet</button>
@@ -118,14 +121,15 @@ accountBtn.addEventListener("click", () => {
     accountMenu.classList.toggle("hidden");
 });
 
-// Fermer le menu si on clique ailleurs
 document.addEventListener("click", (e) => {
     if (!accountBtn.contains(e.target) && !accountMenu.contains(e.target)) {
         accountMenu.classList.add("hidden");
     }
 });
 
-// Fonctions d'authentification
+// ===============================
+// FONCTIONS D'AUTHENTIFICATION
+// ===============================
 function showAuthPopup() {
     authPopup.classList.remove("hidden");
     loginForm.classList.add("active");
@@ -146,7 +150,6 @@ showLoginLink.addEventListener("click", () => {
     loginForm.classList.add("active");
 });
 
-// Gestion des formulaires d'auth
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value;
@@ -173,7 +176,9 @@ signupForm.addEventListener("submit", async (e) => {
     }
 });
 
-// Gestion des projets
+// ===============================
+// GESTION DES PROJETS
+// ===============================
 async function loadProjects() {
     try {
         const querySnapshot = await getDocs(collection(db, "projects"));
@@ -196,9 +201,9 @@ function displayProjects() {
     
     projectsContainer.innerHTML = projects.map(project => `
         <div class="project-card">
-            <h3>${project.title}</h3>
-            <p>${project.description}</p>
-            <a href="${project.url}" target="_blank">Voir le projet</a>
+            <h3>${project.title || 'Titre non défini'}</h3>
+            <p>${project.description || 'Description non définie'}</p>
+            <a href="${project.url || '#'}" target="_blank">Voir le projet</a>
             ${currentUser && currentUser.email === ADMIN_EMAIL ? 
                 `<button onclick="editProject('${project.id}')">Modifier</button>
                  <button onclick="deleteProject('${project.id}')">Supprimer</button>` : ''}
@@ -206,7 +211,9 @@ function displayProjects() {
     `).join('');
 }
 
-// Fonctions pour les projets (admin uniquement)
+// ===============================
+// FONCTIONS ADMIN PROJETS
+// ===============================
 function addProject() {
     if (currentUser && currentUser.email === ADMIN_EMAIL) {
         editingProjectId = null;
@@ -222,9 +229,9 @@ function editProject(projectId) {
         const project = projects.find(p => p.id === projectId);
         if (project) {
             editingProjectId = projectId;
-            document.getElementById("project-title").value = project.title;
-            document.getElementById("project-description").value = project.description;
-            document.getElementById("project-url").value = project.url;
+            document.getElementById("project-title").value = project.title || '';
+            document.getElementById("project-description").value = project.description || '';
+            document.getElementById("project-url").value = project.url || '';
             projectPopup.classList.remove("hidden");
         }
     }
@@ -243,7 +250,9 @@ async function deleteProject(projectId) {
     }
 }
 
-// Gestion du formulaire projet
+// ===============================
+// FORMULAIRE PROJET
+// ===============================
 document.getElementById("project-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -255,7 +264,6 @@ document.getElementById("project-form").addEventListener("submit", async (e) => 
     
     try {
         if (editingProjectId) {
-            // Modification
             await updateDoc(doc(db, "projects", editingProjectId), {
                 title,
                 description,
@@ -263,7 +271,6 @@ document.getElementById("project-form").addEventListener("submit", async (e) => 
                 updatedAt: new Date()
             });
         } else {
-            // Ajout
             await addDoc(collection(db, "projects"), {
                 title,
                 description,
@@ -284,7 +291,9 @@ document.getElementById("close-project-popup").addEventListener("click", () => {
     projectPopup.classList.add("hidden");
 });
 
-// Rendre les fonctions globales
+// ===============================
+// FONCTIONS GLOBALES
+// ===============================
 window.addProject = addProject;
 window.editProject = editProject;
 window.deleteProject = deleteProject;
