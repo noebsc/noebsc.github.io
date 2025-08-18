@@ -63,5 +63,27 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(() => {
+            const popup = document.createElement('div');
+            popup.innerHTML = `
+              <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:999999999; display:flex; justify-content:center; align-items:center;">
+                <div style="background:#222; padding:30px; border-radius:15px; text-align:center; color:white;">
+                  <h2>💝 Un petit don ? Même 1€ ça compte !</h2>
+                  <p>Merci de soutenir mes projets open source !</p>
+                  <a href="https://www.buymeacoffee.com/noebsc" target="_blank" style="background:#ff813f; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; display:inline-block; margin:10px;">
+                    ☕ Faire un don
+                  </a>
+                  <br>
+                  <button onclick="this.parentElement.parentElement.remove()" style="background:transparent; border:none; color:#ccc; font-size:20px; cursor:pointer; margin-top:10px;">Fermer</button>
+                </div>
+              </div>
+            `;
+            document.body.appendChild(popup);
+            console.log('Pop-up de don forcé ajouté au DOM');
+          }, 1000);
+        });
+    </script>
 </body>
 </html>
