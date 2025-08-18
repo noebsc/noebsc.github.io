@@ -10,9 +10,9 @@ Ce site web hébergé sur GitHub Pages regroupe plusieurs projets open source qu
 
 Si vous appréciez mes projets, vous pouvez m’encourager en faisant un petit don sur :
 
-[BuyMeACoffee](https://www.buymeacoffee.com/noebsc)
+👉[BuyMeACoffee](https://www.buymeacoffee.com/noebsc)👈
 
-Chaque geste compte et me permet de continuer à développer des outils open source de qualité.
+🤞 Chaque geste compte et me permet de continuer à développer des outils open source de qualité.
 
 ## Fonctionnalités
 
