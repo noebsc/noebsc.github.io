@@ -6,7 +6,7 @@ Bienvenue sur le dépôt GitHub du hub centralisant tous mes projets personnels.
 
 Ce site web hébergé sur GitHub Pages regroupe plusieurs projets open source que je développe et maintiens avec passion. Vous y trouverez des applications web, outils et jeux accessibles gratuitement.
 
-## Soutenez-moi
+## 🎊🤏 Soutenez-moi 💲👍
 
 Si vous appréciez mes projets, vous pouvez m’encourager en faisant un petit don sur :
 
