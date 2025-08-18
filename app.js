@@ -73,12 +73,27 @@ setTimeout(() => {
 }, 1000);
 
 // Gestion de la fermeture
-document.addEventListener('click', (e) => {
-  if (e.target.id === 'close-donation-popup' || e.target === donationPopup) {
-    donationPopup.style.display = 'none';
-    console.log('Pop-up don fermé');
+// Gestion de la fermeture du pop-up don
+setTimeout(() => {
+  const closeDonationBtn = document.getElementById('close-donation-popup');
+  if (closeDonationBtn) {
+    closeDonationBtn.addEventListener('click', () => {
+      donationPopup.classList.add('donation-popup-hidden');
+      donationPopup.style.display = 'none';
+      console.log('Pop-up don fermé via bouton X');
+    });
   }
-});
+  
+  // Fermeture via clic sur l'arrière-plan
+  donationPopup.addEventListener('click', (e) => {
+    if (e.target === donationPopup) {
+      donationPopup.classList.add('donation-popup-hidden');
+      donationPopup.style.display = 'none';
+      console.log('Pop-up don fermé via clic arrière-plan');
+    }
+  });
+}, 100);
+
 
 
 // ===============================
