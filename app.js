@@ -23,11 +23,10 @@ let currentUser = null;
 let editingProjectId = null;
 
 // ===============================
-// POP-UP DON - CRÉATION ET AFFICHAGE
+// POP-UP DON - FORÇAGE TOTAL
 // ===============================
 const donationPopup = document.createElement("div");
 donationPopup.id = "donation-popup";
-donationPopup.classList.add("donation-popup-hidden");
 donationPopup.innerHTML = `
   <div class="donation-modal">
     <button id="close-donation-popup" title="Fermer">&times;</button>
@@ -43,26 +42,44 @@ donationPopup.innerHTML = `
     </div>
   </div>
 `;
+
+// FORÇAGE IMMÉDIAT AU CHARGEMENT (supprime la classe hidden et sessionStorage)
+donationPopup.style.cssText = `
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+  background: rgba(0,0,0,0.85) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 999999999 !important;
+`;
+
 document.body.appendChild(donationPopup);
 
-// Afficher le pop-up de don au chargement de la page
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Page chargée, vérification pop-up don...');
-  setTimeout(() => {
-    if (!sessionStorage.getItem('donationPopupShown')) {
-      console.log('Affichage du pop-up de don');
-      donationPopup.classList.remove('donation-popup-hidden');
-      sessionStorage.setItem('donationPopupShown', 'true');
-    }
-  }, 1500);
-});
+// MULTIPLES TENTATIVES D'AFFICHAGE
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 1');
+}, 100);
 
-// Fermeture du pop-up de don
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 2');
+}, 500);
+
+setTimeout(() => {
+  donationPopup.style.display = 'flex';
+  console.log('Pop-up don affiché - tentative 3');
+}, 1000);
+
+// Gestion de la fermeture
 document.addEventListener('click', (e) => {
   if (e.target.id === 'close-donation-popup' || e.target === donationPopup) {
-    donationPopup.classList.add('donation-popup-hidden');
+    donationPopup.style.display = 'none';
+    console.log('Pop-up don fermé');
   }
 });
+
 
 // ===============================
 // POP-UP PROJET - CRÉATION
