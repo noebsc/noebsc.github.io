@@ -74,25 +74,27 @@ setTimeout(() => {
 
 // Gestion de la fermeture
 // Gestion de la fermeture du pop-up don
-setTimeout(() => {
-  const closeDonationBtn = document.getElementById('close-donation-popup');
-  if (closeDonationBtn) {
-    closeDonationBtn.addEventListener('click', () => {
-      donationPopup.classList.add('donation-popup-hidden');
-      donationPopup.style.display = 'none';
-      console.log('Pop-up don fermé via bouton X');
-    });
-  }
-  
-  // Fermeture via clic sur l'arrière-plan
-  donationPopup.addEventListener('click', (e) => {
-    if (e.target === donationPopup) {
-      donationPopup.classList.add('donation-popup-hidden');
-      donationPopup.style.display = 'none';
-      console.log('Pop-up don fermé via clic arrière-plan');
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    donationPopup.classList.remove('donation-popup-hidden');
+    // Attache les écouteurs APRÈS que le DOM du popup soit créé (donc croix présente !)
+    const closeDonationBtn = document.querySelector('#close-donation-popup');
+    if (closeDonationBtn) {
+      closeDonationBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Empêche la propagation au parent
+        donationPopup.remove(); // Supprime l'élément du DOM, plus aucun affichage possible
+        console.log('Pop-up don fermé via bouton X');
+      });
     }
-  });
-}, 100);
+    // Clic sur l'arrière-plan (donationPopup lui-même)
+    donationPopup.addEventListener('click', function(e) {
+      if (e.target === donationPopup) {
+        donationPopup.remove();
+        console.log('Pop-up don fermé via clic arrière-plan');
+      }
+    });
+  }, 1000);
+});
 
 
 
