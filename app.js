@@ -221,6 +221,16 @@ async function loadProjects() {
             projects.push({ id: doc.id, ...doc.data() });
         });
         
+        // Trier les projets pour mettre "Ulyra" en premier
+        projects.sort((a, b) => {
+            // Si le titre est "Ulyra", il passe en premier
+            if (a.title === "Ulyra") return -1;
+            if (b.title === "Ulyra") return 1;
+            
+            // Pour les autres projets, tri alphabétique par titre
+            return (a.title || '').localeCompare(b.title || '');
+        });
+        
         displayProjects();
     } catch (error) {
         console.error("Erreur lors du chargement des projets:", error);
