@@ -1284,4 +1284,191 @@ footer {
     transform: scale(1.1);
     box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6);
 }
+#project-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+}
 
+.project-modal {
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh; /* Limitation de hauteur */
+    overflow-y: auto; /* Scroll vertical si nécessaire */
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideIn 0.3s ease;
+}
+
+/* Amélioration du formulaire pour une meilleure organisation */
+#project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#project-form input,
+#project-form textarea {
+    padding: 12px 15px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    resize: vertical; /* Permet de redimensionner le textarea */
+}
+
+#project-form textarea {
+    min-height: 80px;
+    max-height: 120px;
+}
+
+/* Sélection d'appareils compacte */
+.devices-selection {
+    margin: 0;
+}
+
+.devices-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+    font-size: 0.9rem;
+}
+
+/* Sélection nouveau projet compacte */
+.new-project-selection {
+    margin: 0;
+    padding: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius);
+}
+
+.new-project-label {
+    font-size: 0.95rem;
+}
+
+/* Bouton de soumission fixé en bas */
+#project-form button[type="submit"] {
+    background: var(--primary-color);
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+#project-form button[type="submit"]:hover {
+    background: var(--primary-hover);
+}
+
+/* Responsive pour mobile - modal plein écran sur petits écrans */
+@media (max-width: 768px) {
+    #project-popup {
+        padding: 10px;
+    }
+    
+    .project-modal {
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        padding: 20px 15px;
+    }
+    
+    .devices-checkboxes {
+        grid-template-columns: 1fr;
+        max-height: 120px;
+    }
+    
+    #project-form textarea {
+        min-height: 60px;
+        max-height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-modal {
+        padding: 15px 10px;
+    }
+    
+    #project-form {
+        gap: 15px;
+    }
+    
+    .checkbox-label {
+        font-size: 0.85rem;
+        padding: 5px 6px;
+    }
+}
+
+/* Amélioration du scroll pour WebKit browsers */
+.project-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.project-modal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.project-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.project-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.devices-checkboxes::-webkit-scrollbar {
+    width: 6px;
+}
+
+.devices-checkboxes::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.devices-checkboxes::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
