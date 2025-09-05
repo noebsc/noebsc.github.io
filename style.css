@@ -795,3 +795,331 @@ footer {
         padding: 40px 0 80px;
     }
 }
+
+/* Header actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Bouton Analytics */
+.analytics-btn {
+    padding: 10px 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--success-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.analytics-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.analytics-btn.hidden {
+    display: none;
+}
+
+/* Sélection d'appareils dans le formulaire */
+.devices-selection {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.devices-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;
+}
+
+.checkbox-label i {
+    color: var(--primary-color);
+    width: 16px;
+}
+
+/* Tags de projet améliorés */
+.project-tag.blue {
+    background: rgba(78, 161, 247, 0.2);
+    color: #4ea1f7;
+    border: 1px solid rgba(78, 161, 247, 0.3);
+}
+
+.project-tag.purple {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.project-tag.orange {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.project-tag.android {
+    background: rgba(168, 219, 93, 0.2);
+    color: #a8db5d;
+    border: 1px solid rgba(168, 219, 93, 0.3);
+}
+
+.project-tag.ios {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Analytics Modal */
+#analytics-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+}
+
+#analytics-popup.hidden {
+    display: none;
+}
+
+.analytics-modal {
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    animation: modalSlideIn 0.3s ease;
+}
+
+.analytics-modal h2 {
+    margin-bottom: 25px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#close-analytics {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#close-analytics:hover {
+    color: var(--text-primary);
+}
+
+/* Analytics Content */
+.analytics-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Charts */
+.analytics-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.chart-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+}
+
+.chart-container h3 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* Analytics Table */
+.analytics-table {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+}
+
+.analytics-table h3 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+#clicks-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text-primary);
+}
+
+#clicks-table th,
+#clicks-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#clicks-table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#clicks-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Responsive pour Analytics */
+@media (max-width: 768px) {
+    .analytics-modal {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        padding: 20px 15px;
+    }
+    
+    .analytics-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-charts {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .devices-checkboxes {
+        grid-template-columns: 1fr;
+    }
+    
+    #clicks-table {
+        font-size: 0.8rem;
+    }
+    
+    #clicks-table th,
+    #clicks-table td {
+        padding: 8px 6px;
+    }
+}
