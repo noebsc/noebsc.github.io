@@ -70,6 +70,14 @@ projectPopup.innerHTML = `
                 </div>
             </div>
             
+            <div class="new-project-selection">
+                <label class="checkbox-label new-project-label">
+                    <input type="checkbox" id="project-is-new" class="new-project-checkbox">
+                    <i class="fas fa-star"></i>
+                    Marquer comme nouveau projet
+                </label>
+            </div>
+            
             <button type="submit">Enregistrer</button>
         </form>
     </div>
@@ -127,14 +135,21 @@ function generateDeviceTags(selectedDevices) {
 // Fonction pour créer une carte de projet
 function createProjectCard(project) {
     const deviceTags = generateDeviceTags(project.supportedDevices);
+    const isNew = project.isNew || false;
     
     return `
-        <div class="project-card" data-id="${project.id}">
+        <div class="project-card ${isNew ? 'new-project' : ''}" data-id="${project.id}">
             <div class="project-header">
                 <h3 class="project-title">${project.title}</h3>
             </div>
             
             <div class="project-tags">
+                ${isNew ? `
+                    <span class="project-tag new-tag">
+                        <i class="fas fa-star"></i>
+                        NOUVEAU
+                    </span>
+                ` : ''}
                 ${deviceTags.map(tag => `
                     <span class="project-tag ${tag.class}">
                         <i class="fas fa-${tag.icon}"></i>
@@ -154,6 +169,10 @@ function createProjectCard(project) {
             
             ${currentUser && currentUser.email === ADMIN_EMAIL ? `
                 <div class="admin-actions">
+                    <button class="admin-btn ${isNew ? 'new-active' : 'new'}" onclick="toggleNewProject('${project.id}')">
+                        <i class="fas fa-star"></i>
+                        ${isNew ? 'Retirer nouveau' : 'Définir comme nouveau'}
+                    </button>
                     <button class="admin-btn edit" onclick="editProject('${project.id}')">
                         <i class="fas fa-edit"></i>
                         Modifier
@@ -167,6 +186,29 @@ function createProjectCard(project) {
         </div>
     `;
 }
+
+// Fonction pour basculer le statut "nouveau" d'un projet
+window.toggleNewProject = async (projectId) => {
+    try {
+        const project = projects.find(p => p.id === projectId);
+        if (!project) return;
+        
+        const newStatus = !project.isNew;
+        
+        await updateDoc(doc(db, "projects", projectId), {
+            isNew: newStatus,
+            updatedAt: new Date().toISOString()
+        });
+        
+        // Mettre à jour localement
+        project.isNew = newStatus;
+        displayProjects();
+        
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du statut nouveau:", error);
+        alert("Erreur lors de la mise à jour du statut");
+    }
+};
 
 // =============================== 
 // ANALYTICS & TRACKING
@@ -561,6 +603,7 @@ window.showAddProjectForm = () => {
     
     // Décocher toutes les checkboxes
     document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById("project-is-new").checked = false;
     
     projectPopup.classList.remove("hidden");
     accountMenu.classList.add("hidden");
@@ -576,6 +619,7 @@ window.editProject = (projectId) => {
     document.getElementById("project-name").value = project.title || '';
     document.getElementById("project-description").value = project.description || '';
     document.getElementById("project-url").value = project.url || '';
+    document.getElementById("project-is-new").checked = project.isNew || false;
     
     // Cocher les appareils supportés
     document.querySelectorAll('.device-checkbox').forEach(cb => {
@@ -615,6 +659,7 @@ document.getElementById("project-form").addEventListener("submit", async (e) => 
         description: document.getElementById("project-description").value,
         url: document.getElementById("project-url").value,
         supportedDevices: selectedDevices,
+        isNew: document.getElementById("project-is-new").checked,
         updatedAt: new Date().toISOString()
     };
     
