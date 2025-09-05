@@ -3,66 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub</title>
+    <title>Noé's Project Hub</title>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>Hub</h1>
-        <div class="account-container">
-            <button id="account-btn">Compte</button>
-            <!-- Menu retiré d’ici -->
+        <div class="header-content">
+            <h1><i class="fas fa-code"></i> Noé's Project Hub</h1>
+            <div class="account-container">
+                <button id="account-btn">
+                    <i class="fas fa-user"></i> Compte
+                </button>
+                <div id="account-menu" class="hidden">
+                    <div id="account-info"></div>
+                    <div id="account-actions"></div>
+                </div>
+            </div>
         </div>
     </header>
 
     <main>
-        <div id="projects-container">
-            <p id="no-projects" class="hidden">Récupération des projets...</p>
-        </div>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2>Découvrez mes projets open source</h2>
+                <p>Une collection d'applications web, outils et jeux développés avec passion</p>
+            </div>
+        </section>
+
+        <section class="projects-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3><i class="fas fa-rocket"></i> Mes Projets</h3>
+                    <div class="projects-stats">
+                        <span id="projects-count">0 projets</span>
+                    </div>
+                </div>
+                
+                <div id="projects-grid" class="projects-grid">
+                    <!-- Les projets seront injectés ici -->
+                </div>
+                
+                <div id="no-projects" class="no-projects hidden">
+                    <div class="no-projects-content">
+                        <i class="fas fa-folder-open"></i>
+                        <h4>Aucun projet pour le moment</h4>
+                        <p>Les projets apparaîtront ici une fois ajoutés.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
-        <p>Fait avec ♥ par Noé. © 2025</p>
-        <a href="#" id="licence-link">Licence MIT</a>
-        <div id="licence-popup" class="hidden">
-            <h3>Licence MIT</h3>
-            <p>License & Copyright © 2025 Noé Besançon</p>
-            <p>© 2025 Noé Besançon.  Le code source est accessible librement pour consultation uniquement.  Toute modification, redistribution ou réutilisation du code est interdite sans autorisation écrite préalable.</p>
-            <button id="close-licence">×</button>
+        <div class="footer-content">
+            <p>&copy; 2025 Noé Besançon. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="https://www.buymeacoffee.com/noebsc" target="_blank" class="donation-link">
+                    <i class="fas fa-coffee"></i> Me soutenir
+                </a>
+                <a href="mailto:besancon.noe@gmail.com" class="contact-link">
+                    <i class="fas fa-envelope"></i> Contact
+                </a>
+            </div>
         </div>
     </footer>
 
-    <!-- Menu compte déplacé ici, tout à la fin -->
-    <div id="account-menu" class="hidden">
-        <div id="account-info"></div>
-        <div id="account-actions"></div>
-    </div>
-
-    <!-- Popup Auth (déjà présent) -->
+    <!-- Pop-up d'authentification -->
     <div id="auth-popup" class="hidden">
         <div class="auth-modal">
-            <button id="close-auth" title="Fermer">×</button>
-            <div id="auth-forms">
-                <form id="login-form" class="active">
-                    <h2>Connexion</h2>
-                    <input type="email" id="login-email" placeholder="Email" required>
-                    <input type="password" id="login-password" placeholder="Mot de passe" required>
-                    <button type="submit">Se connecter</button>
-                    <p>Pas de compte ? <span id="show-signup" class="link">Créer un compte</span></p>
-                </form>
-                <form id="signup-form">
-                    <h2>Inscription</h2>
-                    <input type="email" id="signup-email" placeholder="Email" required>
-                    <input type="password" id="signup-password" placeholder="Mot de passe" required>
-                    <input type="password" id="signup-password-confirm" placeholder="Confirmer le mot de passe" required>
-                    <button type="submit">S'inscrire</button>
-                    <p>Déjà un compte ? <span id="show-login" class="link">Se connecter</span></p>
-                </form>
+            <button id="close-auth">&times;</button>
+            
+            <form id="login-form" class="active">
+                <h2>Connexion</h2>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+                <p>Pas de compte ? <span id="show-signup" class="link">S'inscrire</span></p>
+            </form>
+            
+            <form id="signup-form">
+                <h2>Inscription</h2>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Mot de passe" required>
+                <button type="submit">S'inscrire</button>
+                <p>Déjà un compte ? <span id="show-login" class="link">Se connecter</span></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pop-up de don -->
+    <div id="donation-popup" class="donation-popup-hidden">
+        <div class="donation-modal">
+            <button id="close-donation-popup">&times;</button>
+            <div class="donation-content">
+                <h2>🎊 Soutenez mes projets ! 🤏</h2>
+                <p>Si vous appréciez mes créations open source, votre soutien m'aide énormément à continuer le développement.</p>
+                <a href="https://www.buymeacoffee.com/noebsc" target="_blank" class="donation-button">
+                    <i class="fas fa-coffee"></i> Buy Me A Coffee
+                </a>
+                <p class="donation-note">Chaque geste compte et me motive à créer davantage !</p>
             </div>
         </div>
     </div>
-    
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
