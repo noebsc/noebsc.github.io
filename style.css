@@ -1123,3 +1123,165 @@ footer {
         padding: 8px 6px;
     }
 }
+/* =============================== 
+   PROJETS NOUVEAUX - STYLES
+   =============================== */
+
+/* Carte de projet nouveau avec bordures vertes animées */
+.project-card.new-project {
+    position: relative;
+    overflow: hidden;
+    animation: newProjectGlow 3s ease-in-out infinite alternate;
+}
+
+.project-card.new-project::before {
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    opacity: 1;
+}
+
+.project-card.new-project::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, transparent, #10b981, #34d399, #10b981, transparent);
+    border-radius: var(--radius-lg);
+    z-index: -1;
+    opacity: 0.6;
+    animation: newProjectBorder 4s linear infinite;
+}
+
+/* Tag "NOUVEAU" vert */
+.project-tag.new-tag {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+    border: 1px solid #10b981;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    animation: newTagPulse 2s ease-in-out infinite alternate;
+}
+
+/* Sélection "Nouveau projet" dans le formulaire */
+.new-project-selection {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius);
+}
+
+.new-project-label {
+    color: var(--success-color) !important;
+    font-weight: 600;
+    margin: 0 !important;
+}
+
+.new-project-label:hover {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.new-project-checkbox {
+    accent-color: var(--success-color);
+}
+
+/* Boutons admin pour "nouveau" */
+.admin-btn.new {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.admin-btn.new:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.admin-btn.new-active {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.admin-btn.new-active:hover {
+    background: #059669;
+}
+
+/* Animations pour les projets nouveaux */
+@keyframes newProjectGlow {
+    0% {
+        box-shadow: var(--shadow-lg), 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    100% {
+        box-shadow: var(--shadow-lg), 0 0 30px rgba(16, 185, 129, 0.6);
+    }
+}
+
+@keyframes newProjectBorder {
+    0% {
+        background-position: 0% 0%;
+    }
+    25% {
+        background-position: 100% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    75% {
+        background-position: 0% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+@keyframes newTagPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+    }
+}
+
+/* Responsive pour les nouveaux projets */
+@media (max-width: 768px) {
+    .project-card.new-project::after {
+        animation-duration: 3s;
+    }
+}
+
+@media (max-width: 480px) {
+    .new-project-selection {
+        padding: 10px;
+    }
+    
+    .admin-actions {
+        flex-direction: column;
+    }
+    
+    .admin-btn {
+        margin-bottom: 5px;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .admin-btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Amélioration des effets visuels */
+.project-card.new-project:hover::after {
+    opacity: 0.8;
+    animation-duration: 2s;
+}
+
+.project-tag.new-tag:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6);
+}
+
