@@ -1472,3 +1472,182 @@ footer {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
 }
+.project-card.new-project {
+    position: relative;
+    border: 2px solid transparent;
+    background: var(--bg-card);
+    background-clip: padding-box;
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(16, 185, 129, 0.2);
+    animation: newProjectGlow 3s ease-in-out infinite alternate;
+}
+
+.project-card.new-project::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    background: linear-gradient(45deg, 
+        transparent, 
+        #10b981, 
+        #34d399, 
+        #10b981, 
+        transparent, 
+        #22c55e, 
+        #10b981, 
+        transparent
+    );
+    background-size: 400% 400%;
+    border-radius: var(--radius-lg);
+    animation: newProjectBorder 4s linear infinite;
+    opacity: 0.8;
+}
+
+/* Masquer l'ancien ::after */
+.project-card.new-project::after {
+    display: none;
+}
+
+/* Tag "NOUVEAU" vert */
+.project-tag.new-tag {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+    border: 1px solid #10b981;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    animation: newTagPulse 2s ease-in-out infinite alternate;
+    order: -1; /* Place le tag "NOUVEAU" en premier */
+}
+
+/* Sélection "Nouveau projet" dans le formulaire */
+.new-project-selection {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius);
+}
+
+.new-project-label {
+    color: var(--success-color) !important;
+    font-weight: 600;
+    margin: 0 !important;
+}
+
+.new-project-label:hover {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+.new-project-checkbox {
+    accent-color: var(--success-color);
+}
+
+/* Boutons admin pour "nouveau" */
+.admin-btn.new {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.admin-btn.new:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.admin-btn.new-active {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.admin-btn.new-active:hover {
+    background: #059669;
+}
+
+/* Animations pour les projets nouveaux - bordures uniquement */
+@keyframes newProjectGlow {
+    0% {
+        box-shadow: var(--shadow-lg), 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+    100% {
+        box-shadow: var(--shadow-lg), 0 0 25px rgba(16, 185, 129, 0.4);
+    }
+}
+
+@keyframes newProjectBorder {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes newTagPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+    }
+}
+
+/* Ordre des tags pour mettre "NOUVEAU" en premier */
+.project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* Responsive pour les nouveaux projets */
+@media (max-width: 768px) {
+    .project-card.new-project::before {
+        animation-duration: 3s;
+    }
+}
+
+@media (max-width: 480px) {
+    .new-project-selection {
+        padding: 10px;
+    }
+    
+    .admin-actions {
+        flex-direction: column;
+    }
+    
+    .admin-btn {
+        margin-bottom: 5px;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .admin-btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Amélioration des effets visuels - bordures uniquement */
+.project-card.new-project:hover {
+    transform: translateY(-2px);
+}
+
+.project-card.new-project:hover::before {
+    opacity: 1;
+    animation-duration: 2s;
+}
+
+.project-tag.new-tag:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6);
+}
+
+/* Assurer que le contenu reste au-dessus de la bordure animée */
+.project-card.new-project > * {
+    position: relative;
+    z-index: 1;
+}
