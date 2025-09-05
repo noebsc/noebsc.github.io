@@ -589,6 +589,19 @@ async function loadProjects() {
         querySnapshot.forEach((doc) => {
             projects.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Trier les projets : nouveaux en premier, puis par date de création
+        projects.sort((a, b) => {
+            // D'abord par statut "nouveau" (les nouveaux en premier)
+            if (a.isNew && !b.isNew) return -1;
+            if (!a.isNew && b.isNew) return 1;
+            
+            // Ensuite par date de création (plus récents en premier)
+            const dateA = new Date(a.createdAt || 0);
+            const dateB = new Date(b.createdAt || 0);
+            return dateB - dateA;
+        });
+        
         displayProjects();
     } catch (error) {
         console.error("Erreur lors du chargement des projets:", error);
