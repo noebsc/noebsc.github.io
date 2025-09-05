@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const ADMIN_EMAIL = "besancon.noe@gmail.com";
 
@@ -18,11 +18,29 @@ const signupForm = document.getElementById("signup-form");
 const showSignupLink = document.getElementById("show-signup");
 const showLoginLink = document.getElementById("show-login");
 const projectsCount = document.getElementById("projects-count");
+const analyticsBtn = document.getElementById("analytics-btn");
+const analyticsPopup = document.getElementById("analytics-popup");
+const closeAnalyticsBtn = document.getElementById("close-analytics");
 
 // Variables globales
 let projects = [];
 let currentUser = null;
 let editingProjectId = null;
+let clicksData = [];
+
+// =============================== 
+// SYSTÈME DE TAGS PERSONNALISÉ
+// ===============================
+const deviceOptions = {
+    'desktop': { label: 'Ordinateur', icon: 'desktop', color: 'blue' },
+    'desktop-recommended': { label: 'Ordinateur recommandé', icon: 'desktop', color: 'warning' },
+    'desktop-only': { label: 'PC uniquement', icon: 'desktop', color: 'purple' },
+    'mobile': { label: 'Téléphone', icon: 'mobile-alt', color: 'green' },
+    'tablet': { label: 'Tablette', icon: 'tablet-alt', color: 'orange' },
+    'android-only': { label: 'Android uniquement', icon: 'android', color: 'android' },
+    'ios-only': { label: 'iOS uniquement', icon: 'apple', color: 'ios' },
+    'all-devices': { label: 'Tous appareils', icon: 'globe', color: 'success' }
+};
 
 // =============================== 
 // POP-UP PROJET - CRÉATION
@@ -38,7 +56,20 @@ projectPopup.innerHTML = `
             <input type="text" id="project-name" placeholder="Nom du projet" required>
             <textarea id="project-description" placeholder="Description du projet" rows="4" required></textarea>
             <input type="url" id="project-url" placeholder="URL du projet" required>
-            <input type="text" id="project-devices" placeholder="Appareils supportés (ex: Tous appareils, Ordinateur recommandé, Android uniquement)" required>
+            
+            <div class="devices-selection">
+                <label class="form-label">Appareils supportés :</label>
+                <div class="devices-checkboxes">
+                    ${Object.entries(deviceOptions).map(([key, option]) => `
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="${key}" class="device-checkbox">
+                            <i class="fas fa-${option.icon}"></i>
+                            ${option.label}
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+            
             <button type="submit">Enregistrer</button>
         </form>
     </div>
@@ -55,22 +86,47 @@ const closeDonationBtn = document.getElementById("close-donation-popup");
 // FONCTIONS UTILITAIRES
 // ===============================
 
-// Fonction pour déterminer le tag d'un projet basé sur les appareils
-function getDeviceTag(devicesText) {
-    const text = devicesText.toLowerCase();
-    
-    if (text.includes('android') && !text.includes('tous')) {
-        return { class: 'android-only', text: 'Android' };
-    } else if (text.includes('ordinateur recommandé') || text.includes('optimisé sur ordinateur')) {
-        return { class: 'desktop-recommended', text: 'PC Recommandé' };
-    } else {
-        return { class: 'all-devices', text: 'Multi-plateformes' };
+// Fonction pour générer les tags basés sur la sélection d'appareils
+function generateDeviceTags(selectedDevices) {
+    if (!selectedDevices || selectedDevices.length === 0) {
+        return [{ class: 'all-devices', text: 'Multi-plateformes', icon: 'globe' }];
     }
+
+    const tags = [];
+    
+    // Logique spéciale pour les combinaisons
+    if (selectedDevices.includes('desktop-recommended') && selectedDevices.includes('mobile')) {
+        tags.push({ class: 'desktop-recommended', text: 'PC Recommandé + Mobile', icon: 'desktop' });
+    } else if (selectedDevices.includes('desktop-recommended') && selectedDevices.includes('tablet')) {
+        tags.push({ class: 'desktop-recommended', text: 'PC Recommandé + Tablette', icon: 'desktop' });
+    } else if (selectedDevices.includes('desktop') && selectedDevices.includes('mobile') && selectedDevices.includes('tablet')) {
+        tags.push({ class: 'all-devices', text: 'Multi-plateformes', icon: 'globe' });
+    } else {
+        // Tags individuels
+        selectedDevices.forEach(device => {
+            const option = deviceOptions[device];
+            if (option) {
+                let text = option.label;
+                if (device === 'desktop') text = 'PC';
+                if (device === 'desktop-recommended') text = 'PC Recommandé';
+                if (device === 'desktop-only') text = 'PC Uniquement';
+                if (device === 'mobile') text = 'Mobile';
+                
+                tags.push({
+                    class: device,
+                    text: text,
+                    icon: option.icon
+                });
+            }
+        });
+    }
+    
+    return tags;
 }
 
 // Fonction pour créer une carte de projet
 function createProjectCard(project) {
-    const deviceTag = getDeviceTag(project.devices || project.description || '');
+    const deviceTags = generateDeviceTags(project.supportedDevices);
     
     return `
         <div class="project-card" data-id="${project.id}">
@@ -79,16 +135,18 @@ function createProjectCard(project) {
             </div>
             
             <div class="project-tags">
-                <span class="project-tag ${deviceTag.class}">
-                    <i class="fas fa-${deviceTag.class === 'android-only' ? 'mobile-alt' : deviceTag.class === 'desktop-recommended' ? 'desktop' : 'globe'}"></i>
-                    ${deviceTag.text}
-                </span>
+                ${deviceTags.map(tag => `
+                    <span class="project-tag ${tag.class}">
+                        <i class="fas fa-${tag.icon}"></i>
+                        ${tag.text}
+                    </span>
+                `).join('')}
             </div>
             
             <p class="project-description">${project.description || 'Description non définie'}</p>
             
             <div class="project-actions">
-                <a href="${project.url}" target="_blank" class="project-btn primary">
+                <a href="${project.url}" target="_blank" class="project-btn primary" onclick="trackClick('${project.id}', '${project.title}', '${project.url}')">
                     <i class="fas fa-external-link-alt"></i>
                     Voir le projet
                 </a>
@@ -108,6 +166,225 @@ function createProjectCard(project) {
             ` : ''}
         </div>
     `;
+}
+
+// =============================== 
+// ANALYTICS & TRACKING
+// ===============================
+
+// Fonction pour tracker les clics
+window.trackClick = async (projectId, projectTitle, projectUrl) => {
+    try {
+        // Récupérer des informations sur l'utilisateur
+        const userAgent = navigator.userAgent;
+        const timestamp = new Date();
+        
+        // Détection du navigateur
+        let browser = 'Unknown';
+        if (userAgent.includes('Chrome')) browser = 'Chrome';
+        else if (userAgent.includes('Firefox')) browser = 'Firefox';
+        else if (userAgent.includes('Safari')) browser = 'Safari';
+        else if (userAgent.includes('Edge')) browser = 'Edge';
+        
+        // Détection de l'appareil
+        let device = 'Desktop';
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+            device = 'Mobile';
+        } else if (/iPad/i.test(userAgent)) {
+            device = 'Tablet';
+        }
+        
+        // Récupérer la localisation approximative (via IP)
+        let country = 'Unknown';
+        try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            country = data.country_name || 'Unknown';
+        } catch (e) {
+            console.log('Could not get location');
+        }
+        
+        const clickData = {
+            projectId,
+            projectTitle,
+            projectUrl,
+            timestamp: serverTimestamp(),
+            userAgent,
+            browser,
+            device,
+            country,
+            sessionId: getSessionId()
+        };
+        
+        await addDoc(collection(db, "analytics"), clickData);
+    } catch (error) {
+        console.error("Erreur lors du tracking:", error);
+    }
+};
+
+// Fonction pour générer un ID de session unique
+function getSessionId() {
+    let sessionId = sessionStorage.getItem('sessionId');
+    if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+    return sessionId;
+}
+
+// Fonction pour afficher les analytics
+window.showAnalytics = async () => {
+    analyticsPopup.classList.remove('hidden');
+    accountMenu.classList.add('hidden');
+    
+    try {
+        // Charger les données d'analytics
+        const analyticsQuery = query(collection(db, "analytics"), orderBy("timestamp", "desc"), limit(100));
+        const analyticsSnapshot = await getDocs(analyticsQuery);
+        
+        clicksData = [];
+        analyticsSnapshot.forEach((doc) => {
+            clicksData.push({ id: doc.id, ...doc.data() });
+        });
+        
+        updateAnalyticsDisplay();
+    } catch (error) {
+        console.error("Erreur lors du chargement des analytics:", error);
+    }
+};
+
+// Fonction pour mettre à jour l'affichage des analytics
+function updateAnalyticsDisplay() {
+    // Statistiques générales
+    const totalClicks = clicksData.length;
+    const uniqueVisitors = new Set(clicksData.map(click => click.sessionId)).size;
+    
+    // Projet le plus populaire
+    const projectCounts = {};
+    clicksData.forEach(click => {
+        projectCounts[click.projectTitle] = (projectCounts[click.projectTitle] || 0) + 1;
+    });
+    const topProject = Object.keys(projectCounts).length > 0 
+        ? Object.keys(projectCounts).reduce((a, b) => projectCounts[a] > projectCounts[b] ? a : b)
+        : '-';
+    
+    document.getElementById('total-clicks').textContent = totalClicks;
+    document.getElementById('unique-visitors').textContent = uniqueVisitors;
+    document.getElementById('top-project').textContent = topProject;
+    
+    // Graphique des clics par projet
+    updateProjectClicksChart(projectCounts);
+    
+    // Graphique d'activité quotidienne
+    updateDailyActivityChart();
+    
+    // Table des clics récents
+    updateClicksTable();
+}
+
+// Mise à jour du graphique des clics par projet
+function updateProjectClicksChart(projectCounts) {
+    const ctx = document.getElementById('projectClicksChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(projectCounts),
+            datasets: [{
+                data: Object.values(projectCounts),
+                backgroundColor: [
+                    '#4ea1f7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                    '#f97316', '#06b6d4', '#84cc16', '#ec4899', '#6366f1'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Mise à jour du graphique d'activité quotidienne
+function updateDailyActivityChart() {
+    const ctx = document.getElementById('dailyActivityChart').getContext('2d');
+    
+    // Grouper par jour sur les 7 derniers jours
+    const last7Days = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        last7Days.push(date.toLocaleDateString('fr-FR'));
+    }
+    
+    const dailyCounts = last7Days.map(day => {
+        return clicksData.filter(click => {
+            if (!click.timestamp || !click.timestamp.toDate) return false;
+            const clickDate = click.timestamp.toDate().toLocaleDateString('fr-FR');
+            return clickDate === day;
+        }).length;
+    });
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
+            datasets: [{
+                label: 'Clics',
+                data: dailyCounts,
+                borderColor: '#4ea1f7',
+                backgroundColor: 'rgba(78, 161, 247, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+}
+
+// Mise à jour de la table des clics récents
+function updateClicksTable() {
+    const tbody = document.getElementById('clicks-table-body');
+    
+    const recentClicks = clicksData.slice(0, 20);
+    
+    tbody.innerHTML = recentClicks.map(click => `
+        <tr>
+            <td>${click.projectTitle}</td>
+            <td>${click.timestamp && click.timestamp.toDate ? click.timestamp.toDate().toLocaleString('fr-FR') : 'N/A'}</td>
+            <td>${click.country}</td>
+            <td>${click.browser}</td>
+            <td>${click.device}</td>
+        </tr>
+    `).join('');
 }
 
 // Fonction pour afficher les projets
@@ -135,7 +412,13 @@ accountBtn.addEventListener("click", (e) => {
     accountMenu.classList.toggle("hidden");
 });
 
-// Fermer le menu compte en cliquant ailleurs
+// Gestion du bouton analytics
+analyticsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showAnalytics();
+});
+
+// Fermer les menus en cliquant ailleurs
 document.addEventListener("click", (e) => {
     if (!accountMenu.contains(e.target) && !accountBtn.contains(e.target)) {
         accountMenu.classList.add("hidden");
@@ -146,7 +429,14 @@ document.addEventListener("click", (e) => {
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     updateAccountMenu();
-    displayProjects(); // Mettre à jour l'affichage des projets
+    displayProjects();
+    
+    // Afficher/masquer le bouton analytics pour les admins
+    if (currentUser && currentUser.email === ADMIN_EMAIL) {
+        analyticsBtn.classList.remove('hidden');
+    } else {
+        analyticsBtn.classList.add('hidden');
+    }
 });
 
 // Mettre à jour le menu compte
@@ -197,9 +487,13 @@ window.logout = async () => {
     }
 };
 
-// Événements du pop-up d'authentification
+// Événements des pop-ups
 closeAuthBtn.addEventListener("click", () => {
     authPopup.classList.add("hidden");
+});
+
+closeAnalyticsBtn.addEventListener("click", () => {
+    analyticsPopup.classList.add("hidden");
 });
 
 showSignupLink.addEventListener("click", () => {
@@ -264,6 +558,10 @@ window.showAddProjectForm = () => {
     editingProjectId = null;
     document.getElementById("project-modal-title").textContent = "Ajouter un projet";
     document.getElementById("project-form").reset();
+    
+    // Décocher toutes les checkboxes
+    document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+    
     projectPopup.classList.remove("hidden");
     accountMenu.classList.add("hidden");
 };
@@ -278,7 +576,11 @@ window.editProject = (projectId) => {
     document.getElementById("project-name").value = project.title || '';
     document.getElementById("project-description").value = project.description || '';
     document.getElementById("project-url").value = project.url || '';
-    document.getElementById("project-devices").value = project.devices || '';
+    
+    // Cocher les appareils supportés
+    document.querySelectorAll('.device-checkbox').forEach(cb => {
+        cb.checked = project.supportedDevices && project.supportedDevices.includes(cb.value);
+    });
     
     projectPopup.classList.remove("hidden");
 };
@@ -304,20 +606,22 @@ document.getElementById("close-project-popup").addEventListener("click", () => {
 document.getElementById("project-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     
+    // Récupérer les appareils sélectionnés
+    const selectedDevices = Array.from(document.querySelectorAll('.device-checkbox:checked'))
+        .map(cb => cb.value);
+    
     const projectData = {
         title: document.getElementById("project-name").value,
         description: document.getElementById("project-description").value,
         url: document.getElementById("project-url").value,
-        devices: document.getElementById("project-devices").value,
+        supportedDevices: selectedDevices,
         updatedAt: new Date().toISOString()
     };
     
     try {
         if (editingProjectId) {
-            // Modification
             await updateDoc(doc(db, "projects", editingProjectId), projectData);
         } else {
-            // Ajout
             projectData.createdAt = new Date().toISOString();
             await addDoc(collection(db, "projects"), projectData);
         }
@@ -335,21 +639,18 @@ document.getElementById("project-form").addEventListener("submit", async (e) => 
 // POP-UP DE DON
 // ===============================
 
-// Afficher le pop-up de don après un délai
 setTimeout(() => {
     if (donationPopup) {
         donationPopup.classList.remove("donation-popup-hidden");
     }
-}, 30000); // 30 secondes
+}, 30000);
 
-// Fermer le pop-up de don
 if (closeDonationBtn) {
     closeDonationBtn.addEventListener("click", () => {
         donationPopup.classList.add("donation-popup-hidden");
     });
 }
 
-// Fermer le pop-up de don en cliquant à l'extérieur
 if (donationPopup) {
     donationPopup.addEventListener("click", (e) => {
         if (e.target === donationPopup) {
@@ -362,16 +663,15 @@ if (donationPopup) {
 // INITIALISATION
 // ===============================
 
-// Charger les projets au démarrage
 document.addEventListener("DOMContentLoaded", () => {
     loadProjects();
 });
 
-// Fermer les pop-ups en appuyant sur Échap
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         authPopup.classList.add("hidden");
         projectPopup.classList.add("hidden");
+        analyticsPopup.classList.add("hidden");
         donationPopup.classList.add("donation-popup-hidden");
         accountMenu.classList.add("hidden");
     }
